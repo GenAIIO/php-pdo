@@ -1,0 +1,32 @@
+{
+    "name": "genai/pdo",
+    "version": "1.0.0",
+    "description": "A bundle (auto-configure) for ext-pdo: ships a #[Configuration] that registers a \\PDO bean, plus a PdoProperty typed config bound from the app's database.ini. The pure PDO extension is untouched; this only provides the wiring. Declares extra.genai.scan so the Kernel picks it up. PHP 5.3-safe runtime.",
+    "type": "library",
+    "license": "MIT",
+    "repositories": [
+        { "type": "path", "url": "../php-attribute" },
+        { "type": "path", "url": "../php-container" },
+        { "type": "path", "url": "../php-di" },
+        { "type": "path", "url": "../php-property" }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "ext-pdo": "*",
+        "genai/property": "*"
+    },
+    "suggest": {
+        "genai/di": "Build-time scanning of the bundle's #[Configuration]/#[Bean] (PHP 8).",
+        "genai/boot": "The Kernel reads extra.genai.scan to discover this bundle automatically."
+    },
+    "extra": {
+        "genai": {
+            "scan": ["GenAI\\Bundle\\Pdo"]
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "GenAI\\Bundle\\Pdo\\": "src/"
+        }
+    }
+}
