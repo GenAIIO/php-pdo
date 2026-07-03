@@ -28,10 +28,22 @@ class PdoConfig
     #[Bean(\PDO::class)]
     public function pdo(PdoProperty $config)
     {
-        $pdo = new \PDO($config->getDsn(), $config->getUsername(), $config->getPassword());
-        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        $pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+        $dsn     = $config->getDsn();
+        $options = array(
+            \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+        );
+        // TLS for a hosted MySQL (e.g. Aiven requires an encrypted connection).
+        // Only applied for a mysql DSN with a CA path configured — the MYSQL_ATTR_*
+        // constants exist only when pdo_mysql is loaded, and this branch is reached
+        // only for mysql, where it is. (charset belongs in the DSN, e.g. ;charset=utf8mb4.)
+        if (strpos($dsn, 'mysql:') === 0 && $config->getSslCa() !== '') {
+            $options[\PDO::MYSQL_ATTR_SSL_CA] = $config->getSslCa();
+            if (!$config->getSslVerify()) {
+                $options[\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+            }
+        }
 
-        return $pdo;
+        return new \PDO($dsn, $config->getUsername(), $config->getPassword(), $options);
     }
 }
